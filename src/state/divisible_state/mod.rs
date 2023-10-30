@@ -15,6 +15,7 @@ pub enum InstallStateMessage<S> where S: DivisibleState {
 /// Messages to be sent by the executor for the state transfer module, notifying of a given
 /// checkpoint being made
 pub enum AppState<S> where S: DivisibleState {
+    
     StateDescriptor(S::StateDescriptor),
     StatePart(MaybeVec<S::StatePart>),
     Done,
@@ -30,7 +31,8 @@ pub struct AppStateMessage<S> where S: DivisibleState {
 
 /// The trait that represents the ID of a part
 pub trait PartId: PartialEq + PartialOrd + Clone {
-    fn content_description(&self) -> Digest;
+    fn content_description(&self) -> &[u8];
+    fn seq_no(&self) -> &SeqNo;
 }
 
 /// The abstraction for a divisible state, to be used by the state transfer protocol
@@ -39,12 +41,25 @@ pub trait DivisibleStateDescriptor<S: DivisibleState>: Orderable + PartialEq + C
     fn parts(&self) -> &Vec<S::PartDescription>;
 
     /// Compare two states
-    fn compare_descriptors(&self, other: &Self) -> Vec<S::PartDescription>;
+    //fn compare_descriptors(&self, other: &Self) -> Vec<S::PartDescription>;
+
+    fn get_digest(&self) -> Option<Digest>;
 }
 
 /// A part of the state
 pub trait StatePart<S: DivisibleState> {
-    fn descriptor(&self) -> S::PartDescription;
+    fn descriptor(&self) -> &S::PartDescription;
+
+    fn hash(&self) -> Digest;
+
+    fn id(&self) -> &[u8];
+
+    fn length(&self) -> usize;
+
+    fn size(&self) -> u64;
+
+    fn bytes(&self) -> &[u8];
+
 }
 
 ///
@@ -75,11 +90,13 @@ pub trait DivisibleState: Sized {
     /// Accept a number of parts into our current state
     fn accept_parts(&mut self, parts: Vec<Self::StatePart>) -> Result<()>;
 
-    /// Prepare a checkpoint of the state
-    fn prepare_checkpoint(&mut self) -> Result<&Self::StateDescriptor>;
+    // Here we should perform any checks to see if the database is valid
+    fn finalize_transfer(&mut self) -> Result<()>;
 
     /// Get the parts corresponding to the provided part descriptions
     fn get_parts(&self, parts: &[Self::PartDescription]) -> Result<Vec<Self::StatePart>>;
+    
+    fn get_seqno(&self) -> Result<SeqNo>;
 }
 
 impl<S> AppStateMessage<S> where S: DivisibleState {
