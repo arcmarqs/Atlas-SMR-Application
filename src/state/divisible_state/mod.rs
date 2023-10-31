@@ -94,7 +94,7 @@ pub trait DivisibleState: Sized {
     fn finalize_transfer(&mut self) -> Result<()>;
 
     /// Get the parts corresponding to the provided part descriptions
-    fn get_parts(&self, parts: &[Self::PartDescription]) -> Result<Vec<Self::StatePart>>;
+    fn get_parts(&self) -> Result<Vec<Self::StatePart>>;
     
     fn get_seqno(&self) -> Result<SeqNo>;
 }
