@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 #[cfg(feature = "serialize_serde")]
 use serde::{Deserialize, Serialize};
 use atlas_common::error::*;
@@ -38,7 +40,7 @@ pub trait PartId: PartialEq + PartialOrd + Clone {
 /// The abstraction for a divisible state, to be used by the state transfer protocol
 pub trait DivisibleStateDescriptor<S: DivisibleState>: Orderable + PartialEq + Clone + Send {
     /// Get all the parts of the state
-    fn parts(&self) -> &Vec<S::PartDescription>;
+    fn parts(&self) -> Vec<Arc<S::PartDescription>>;
 
     /// Compare two states
     //fn compare_descriptors(&self, other: &Self) -> Vec<S::PartDescription>;
@@ -85,10 +87,10 @@ pub trait DivisibleState: Sized {
     type StatePart: StatePart<Self> + Send + Clone;
 
     /// Get the description of the state at this moment
-    fn get_descriptor(&self) -> &Self::StateDescriptor;
+    fn get_descriptor(&self) -> Self::StateDescriptor;
 
     /// Accept a number of parts into our current state
-    fn accept_parts(&mut self, parts: Vec<Self::StatePart>) -> Result<()>;
+    fn accept_parts(&mut self, parts: Box<[Self::StatePart]>) -> Result<()>;
 
     // Here we should perform any checks to see if the database is valid
     fn finalize_transfer(&mut self) -> Result<()>;
