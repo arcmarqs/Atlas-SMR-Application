@@ -33,6 +33,7 @@ pub struct AppStateMessage<S> where S: DivisibleState {
 
 /// The trait that represents the ID of a part
 pub trait PartId: PartialEq + PartialOrd + Clone {
+    fn id(&self) -> &[u8];
     fn content_description(&self) -> &[u8];
     fn seq_no(&self) -> &SeqNo;
 }
@@ -67,21 +68,21 @@ pub trait StatePart<S: DivisibleState> {
 ///
 /// The trait that represents a divisible state, to be used by the state transfer protocol
 ///
-pub trait DivisibleState: Sized {
+pub trait DivisibleState: Sized + Send + Sync {
     #[cfg(feature = "serialize_serde")]
-    type PartDescription: PartId + for<'a> Deserialize<'a> + Serialize + Send + Clone;
+    type PartDescription: PartId + for<'a> Deserialize<'a> + Serialize + Send + Clone + std::fmt::Debug;
 
     #[cfg(feature = "serialize_capnp")]
     type PartDescription: PartId + Send + Clone;
 
     #[cfg(feature = "serialize_serde")]
-    type StateDescriptor: DivisibleStateDescriptor<Self> + for<'a> Deserialize<'a> + Serialize + Send + Clone;
+    type StateDescriptor: DivisibleStateDescriptor<Self> + for<'a> Deserialize<'a> + Serialize + Send + Clone + std::fmt::Debug;
 
     #[cfg(feature = "serialize_capnp")]
     type StateDescriptor: DivisibleStateDescriptor<Self> + Send + Clone;
 
     #[cfg(feature = "serialize_serde")]
-    type StatePart: StatePart<Self> + for<'a> Deserialize<'a> + Serialize + Send + Clone;
+    type StatePart: StatePart<Self> + for<'a> Deserialize<'a> + Serialize + Send + Clone + std::fmt::Debug;
 
     #[cfg(feature = "serialize_capnp")]
     type StatePart: StatePart<Self> + Send + Clone;
@@ -96,7 +97,7 @@ pub trait DivisibleState: Sized {
     fn finalize_transfer(&mut self) -> Result<()>;
 
     /// Get the parts corresponding to the provided part descriptions
-    fn get_parts(&self) -> Result<Vec<Self::StatePart>>;
+    fn get_parts(&mut self) -> Result<Vec<Self::StatePart>>;
     
     fn get_seqno(&self) -> Result<SeqNo>;
 }
