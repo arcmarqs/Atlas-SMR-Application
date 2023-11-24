@@ -38,11 +38,10 @@ pub struct AppStateMessage<S> where S: DivisibleState {
 pub trait PartId: PartialEq + PartialOrd + Clone {
     fn id(&self) -> &[u8];
     fn content_description(&self) -> &[u8];
-    fn seq_no(&self) -> &SeqNo;
 }
 
 /// The abstraction for a divisible state, to be used by the state transfer protocol
-pub trait DivisibleStateDescriptor<S: DivisibleState>: Orderable + PartialEq + Clone + Send {
+pub trait DivisibleStateDescriptor<S: DivisibleState>: PartialEq + Clone + Send {
     /// Get all the parts of the state
     fn parts(&self) -> Vec<Arc<S::PartDescription>>;
 
@@ -102,7 +101,7 @@ pub trait DivisibleState: Sized + Send + Sync {
     /// Get the parts corresponding to the provided part descriptions
     fn get_parts(&mut self) -> Result<Vec<Self::StatePart>>;
     
-    fn get_seqno(&self) -> Result<SeqNo>;
+    //fn get_seqno(&self) -> Result<SeqNo>;
 }
 
 impl<S> AppStateMessage<S> where S: DivisibleState {
