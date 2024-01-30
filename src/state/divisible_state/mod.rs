@@ -6,6 +6,7 @@ use atlas_common::error::*;
 use atlas_common::crypto::hash::Digest;
 use atlas_common::maybe_vec::MaybeVec;
 use atlas_common::ordering::{Orderable, SeqNo};
+use core::hash::Hash;
 
 /// Messages to be sent from the state transfer module to the
 /// executor module
@@ -35,7 +36,7 @@ pub struct AppStateMessage<S> where S: DivisibleState {
 }
 
 /// The trait that represents the ID of a part
-pub trait PartId: PartialEq + PartialOrd + Clone {
+pub trait PartId: PartialEq + PartialOrd + Eq + Clone {
     fn id(&self) -> &[u8];
     fn content_description(&self) -> &[u8];
 }
@@ -72,19 +73,19 @@ pub trait StatePart<S: DivisibleState> {
 ///
 pub trait DivisibleState: Sized + Send + Sync {
     #[cfg(feature = "serialize_serde")]
-    type PartDescription: PartId + for<'a> Deserialize<'a> + Serialize + Send + Clone + std::fmt::Debug;
+    type PartDescription: PartId + for<'a> Deserialize<'a> + Serialize + Hash + Send + Sync + Clone + std::fmt::Debug;
 
     #[cfg(feature = "serialize_capnp")]
     type PartDescription: PartId + Send + Clone;
 
     #[cfg(feature = "serialize_serde")]
-    type StateDescriptor: DivisibleStateDescriptor<Self> + for<'a> Deserialize<'a> + Serialize + Send + Clone + std::fmt::Debug;
+    type StateDescriptor: DivisibleStateDescriptor<Self> + for<'a> Deserialize<'a> + Serialize + Send + Sync + Clone + std::fmt::Debug;
 
     #[cfg(feature = "serialize_capnp")]
     type StateDescriptor: DivisibleStateDescriptor<Self> + Send + Clone;
 
     #[cfg(feature = "serialize_serde")]
-    type StatePart: StatePart<Self> + for<'a> Deserialize<'a> + Serialize + Send + Clone + std::fmt::Debug;
+    type StatePart: StatePart<Self> + for<'a> Deserialize<'a> + Serialize + Send + Sync + Clone + std::fmt::Debug;
 
     #[cfg(feature = "serialize_capnp")]
     type StatePart: StatePart<Self> + Send + Clone;
