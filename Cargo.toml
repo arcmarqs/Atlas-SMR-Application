@@ -22,3 +22,4 @@ atlas-common = { path = "../Atlas-Common" }
 atlas-communication = { path = "../Atlas-Communication" }
 atlas-metrics = {path = "../Atlas-Metrics" }
 serde = { version = "*", optional = true }
+scoped_threadpool = "0.1.9"

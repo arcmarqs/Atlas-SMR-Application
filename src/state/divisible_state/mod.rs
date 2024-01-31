@@ -6,6 +6,7 @@ use atlas_common::error::*;
 use atlas_common::crypto::hash::Digest;
 use atlas_common::maybe_vec::MaybeVec;
 use atlas_common::ordering::{Orderable, SeqNo};
+use scoped_threadpool::Pool;
 use core::hash::Hash;
 
 /// Messages to be sent from the state transfer module to the
@@ -100,7 +101,7 @@ pub trait DivisibleState: Sized + Send + Sync {
     fn finalize_transfer(&mut self) -> Result<()>;
 
     /// Get the parts corresponding to the provided part descriptions
-    fn get_parts(&mut self) -> Result<Vec<Self::StatePart>>;
+    fn get_parts(&mut self, pool: &mut Pool) -> Result<Vec<Self::StatePart>>;
     
     //fn get_seqno(&self) -> Result<SeqNo>;
 }
