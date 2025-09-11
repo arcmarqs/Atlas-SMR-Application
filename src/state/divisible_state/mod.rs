@@ -94,6 +94,9 @@ pub trait DivisibleState: Sized + Send + Sync {
     /// Get the description of the state at this moment
     fn get_descriptor(&self) -> Self::StateDescriptor;
 
+
+    fn prepare_checkpoint(&self) -> Result<Vec<Vec<&[u8]>>>;
+
     /// Accept a number of parts into our current state
     fn accept_parts(&mut self, parts: Box<[Self::StatePart]>) -> Result<()>;
 
@@ -101,7 +104,7 @@ pub trait DivisibleState: Sized + Send + Sync {
     fn finalize_transfer(&mut self) -> Result<()>;
 
     /// Get the parts corresponding to the provided part descriptions
-    fn get_parts(&mut self, pool: &mut Pool) -> Result<Vec<Self::StatePart>>;
+    fn get_parts(&mut self, pool: &mut Pool, chunk: Vec<Vec<&[u8]>>) -> Result<Vec<Self::StatePart>>;
     
     //fn get_seqno(&self) -> Result<SeqNo>;
 }
