@@ -101,7 +101,7 @@ pub trait DivisibleState: Sized + Send + Sync {
     fn finalize_transfer(&mut self) -> Result<()>;
 
     /// Get the parts corresponding to the provided part descriptions
-    fn get_parts(&mut self, pool: &mut Pool, checkpoint_tx: ChannelSyncTx<Vec<StatePart>) -> Result<()>;
+    fn get_parts(&mut self, pool: &mut Pool, checkpoint_tx: ChannelSyncTx<Vec<StatePart>>) -> Result<()>;
     
     //fn get_seqno(&self) -> Result<SeqNo>;
 }
