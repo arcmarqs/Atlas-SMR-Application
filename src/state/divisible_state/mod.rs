@@ -103,7 +103,6 @@ pub trait DivisibleState: Sized + Send + Sync {
     /// Get the parts corresponding to the provided part descriptions
     fn get_parts(&mut self, pool: &mut Pool) -> Result<Vec<Self::StatePart>>;
     
-    //fn get_seqno(&self) -> Result<SeqNo>;
 }
 
 impl<S> AppStateMessage<S> where S: DivisibleState {
