@@ -96,7 +96,7 @@ pub trait DivisibleState: Sized + Send + Sync {
     fn get_descriptor(&self) -> Self::StateDescriptor;
 
     /// Accept a number of parts into our current state
-    fn accept_parts(&mut self, parts: Box<[Self::StatePart]>) -> Result<()>;
+    fn accept_parts(&mut self, parts: Vec<Self::StatePart>) -> Result<()>;
 
     // Here we should perform any checks to see if the database is valid
     fn finalize_transfer(&mut self) -> Result<()>;
