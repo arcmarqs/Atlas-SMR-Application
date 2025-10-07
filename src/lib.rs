@@ -46,12 +46,19 @@ impl<D: ApplicationData> ExecutorHandle<D>
 
     /// Sets the current state of the execution layer to the given value.
     pub fn poll_state_channel(&self) -> Result<()> {
+        
+         if self.e_tx.is_full() {
+            println!("EXEC: Could not POLL");
+        }
         self.e_tx
             .send(ExecutionRequest::PollStateChannel)
             .context("Failed to place poll order into executor channel")
     }
 
     pub fn catch_up_to_quorum(&self, requests: MaybeVec<UpdateBatch<D::Request>>) -> Result<()> {
+         if self.e_tx.is_full() {
+            println!("EXEC: Could not catch up");
+        }
         self.e_tx
             .send(ExecutionRequest::CatchUp(requests))
             .context("Failed to place catch up order into executor channel")
@@ -60,6 +67,9 @@ impl<D: ApplicationData> ExecutorHandle<D>
     /// Queues a batch of requests `batch` for execution.
     pub fn queue_update(&self, batch: UpdateBatch<D::Request>)
                         -> Result<()> {
+        if self.e_tx.is_full() {
+            println!("EXEC: Could not UPDATE");
+        }
         self.e_tx
             .send(ExecutionRequest::Update((batch, Instant::now())))
             .context("Failed to place update order into executor channel")
@@ -68,6 +78,10 @@ impl<D: ApplicationData> ExecutorHandle<D>
     /// Queues a batch of unordered requests for execution
     pub fn queue_update_unordered(&self, requests: UnorderedBatch<D::Request>)
                                   -> Result<()> {
+
+        if self.e_tx.is_full() {
+            println!("EXEC: Could not update unordered");
+        }
         self.e_tx
             .send(ExecutionRequest::ExecuteUnordered(requests))
             .context("Failed to place unordered update order into executor channel")
@@ -81,6 +95,9 @@ impl<D: ApplicationData> ExecutorHandle<D>
         &self,
         batch: UpdateBatch<D::Request>,
     ) -> Result<()> {
+         if self.e_tx.is_full() {
+            println!("EXEC: Could not get appstate",);
+        }
         self.e_tx
             .send(ExecutionRequest::UpdateAndGetAppstate((batch, Instant::now())))
             .context("Failed to place update and get appstate order into executor channel")
